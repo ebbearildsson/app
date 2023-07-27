@@ -2,41 +2,26 @@ import 'package:app/EbbeUI.dart';
 import 'package:app/OliverUI.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const MaterialApp(home: App()));
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class App extends StatelessWidget {
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'App',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('App'),
-        ),
-        body: Column(
-          children: [
-            MaterialButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EbbeUI(),
-                ),
-              ),
-              child: const Text('Ebbes Theme'),
-            ),
-            MaterialButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OliverUI(),
-                ),
-              ),
-              child: const Text('Olivers Theme'),
-            ),
-          ],
-        ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('App')),
+      body: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EbbeUI())),
+            child: const Text('Ebbes Theme'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OliverUI())),
+            child: const Text('Olivers Theme'),
+          ),
+        ],
       ),
     );
   }
