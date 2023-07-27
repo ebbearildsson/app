@@ -1,8 +1,14 @@
-import 'package:app/EbbeUI.dart';
-import 'package:app/OliverUI.dart';
+import 'package:app/ebbe_ui.dart';
+import 'package:app/oliver_ui.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MaterialApp(home: App()));
+
+/*
+* This is the main app widget.
+* It contains two buttons that navigate to the two different UIs. 
+* How it is currently being done is temporary but necessary for the sake of getting a runnable app.
+*/
 
 class App extends StatelessWidget {
   const App({super.key});
