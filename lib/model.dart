@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Day {
   DateTime date;
   List<Nutrition> eaten = [];
@@ -5,13 +7,25 @@ class Day {
 
   Day({required this.date});
 
-  void addMeal(Meal newMeal) => eaten.add(newMeal);
+  void addFood(Nutrition food) => eaten.add(food);
 }
 
 class Meal extends Nutrition {
   String name;
+  String description;
+  Icon icon;
 
-  Meal({required this.name, required Nutrition nutrition}) : super(kcal: nutrition.kcal, protein: nutrition.protein, carbs: nutrition.carbs, fat: nutrition.fat);
+  Meal({
+    required this.name,
+    this.description = "",
+    this.icon = const Icon(Icons.fastfood),
+    required Nutrition nutrition,
+  }) : super(
+          kcal: nutrition.kcal,
+          protein: nutrition.protein,
+          carbs: nutrition.carbs,
+          fat: nutrition.fat,
+        );
 }
 
 class Nutrition {
@@ -19,7 +33,10 @@ class Nutrition {
   double protein;
   double carbs;
   double fat;
-  double get total => protein + carbs + fat;
+  int get roundedKcal => kcal.round();
+  int get roundedProtein => protein.round();
+  int get roundedCarbs => carbs.round();
+  int get roundedFat => fat.round();
 
   Nutrition({this.kcal = 0.0, this.protein = 1.0, this.carbs = 3.0, this.fat = 2.0});
 
@@ -30,7 +47,7 @@ class Nutrition {
     fat += other.fat;
   }
 
-  void addBy100(Nutrition nutrition, double grams) {
+  addBy100(Nutrition nutrition, double grams) {
     kcal = nutrition.kcal * grams / 100;
     protein = nutrition.protein * grams / 100;
     carbs = nutrition.carbs * grams / 100;
