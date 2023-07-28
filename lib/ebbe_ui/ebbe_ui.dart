@@ -22,10 +22,10 @@ class EbbeUI extends StatelessWidget {
   }
 
   Widget homepage() {
-    return const CupertinoPageScaffold(child: Center(child: Text('home')));
+    return const CupertinoPageScaffold(navigationBar: CupertinoNavigationBar(middle: Text('Home')), child: Center(child: Text('home')));
   }
 
   Widget workoutpage() {
-    return const CupertinoPageScaffold(child: Center(child: Text('Workout')));
+    return const CupertinoPageScaffold(navigationBar: CupertinoNavigationBar(middle: Text('Workout Tracker')), child: Center(child: Text('Workout')));
   }
 }

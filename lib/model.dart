@@ -1,6 +1,7 @@
 class Day {
   DateTime date;
   List<Nutrition> eaten = [];
+  Nutrition get nutrition => eaten.fold(Nutrition(), (previousValue, element) => previousValue..add(element));
 
   Day({required this.date});
 
@@ -9,20 +10,18 @@ class Day {
 
 class Meal extends Nutrition {
   String name;
-  List<Nutrition> ingridients = [];
 
-  Meal({required this.name});
-
-  void addFood(Nutrition ingridient) => ingridients.add(ingridient);
+  Meal({required this.name, required Nutrition nutrition}) : super(kcal: nutrition.kcal, protein: nutrition.protein, carbs: nutrition.carbs, fat: nutrition.fat);
 }
 
 class Nutrition {
-  double kcal = 0.0;
-  double protein = 0.0;
-  double carbs = 0.0;
-  double fat = 0.0;
+  double kcal;
+  double protein;
+  double carbs;
+  double fat;
+  double get total => protein + carbs + fat;
 
-  Nutrition({this.kcal = 0.0, this.protein = 0.0, this.carbs = 0.0, this.fat = 0.0});
+  Nutrition({this.kcal = 0.0, this.protein = 1.0, this.carbs = 3.0, this.fat = 2.0});
 
   add(Nutrition other) {
     kcal += other.kcal;
