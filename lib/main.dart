@@ -1,4 +1,4 @@
-import 'package:app/ebbe_ui.dart';
+import 'package:app/ebbe_ui/ebbe_ui.dart';
 import 'package:app/oliver_ui.dart';
 import 'package:flutter/material.dart';
 
