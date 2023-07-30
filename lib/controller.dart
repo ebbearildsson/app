@@ -1,42 +1,28 @@
-// A controller with functions for accessing data
-
 import 'package:app/model.dart';
 import 'package:flutter/material.dart';
 
 // Functions we will most likely both use
 class Controller {
-  List<Day> days = [];
-
-  // ! Tmeperary values to be replaced with database
-  List<Meal> meals = [
-    Meal(name: "Carbonara", description: "delish", icon: const Icon(Icons.fastfood), nutrition: Nutrition(kcal: 800, protein: 30, fat: 20, carbs: 100)),
-    Meal(name: "Pizza", description: "delish", icon: const Icon(Icons.local_pizza), nutrition: Nutrition(kcal: 1000, protein: 20, fat: 20, carbs: 100)),
-    Meal(name: "Pasta", description: "delish", icon: const Icon(Icons.fastfood), nutrition: Nutrition(kcal: 800, protein: 10, fat: 20, carbs: 200)),
-    Meal(name: "Burger", description: "delish", icon: const Icon(Icons.fastfood), nutrition: Nutrition(kcal: 800, protein: 30, fat: 20, carbs: 10)),
-    Meal(name: "Salad", description: "delish", icon: const Icon(Icons.fastfood), nutrition: Nutrition(kcal: 400, protein: 5, fat: 20, carbs: 20)),
-  ];
+  Map<DateTime, Day> days = {};
   DateTime today = DateTime.now();
 
-  // ? should probably just use a dictionary for days
-  Nutrition getNutrition(DateTime date) {
-    return days.firstWhere(
-      (element) => element.date == date,
-      orElse: () {
-        days.add(Day(date: date));
-        return days.last;
-      },
-    ).nutrition;
+  // ! Temporary values to be replaced with database/local storage
+  List<Meal> meals = [
+    Meal(name: "Carbonara", description: "delish", icon: const Icon(Icons.fastfood), ingridients: [Nutrition(kcal: 800, protein: 30, fat: 20, carbs: 100)]),
+    Meal(name: "Pizza", description: "delish", icon: const Icon(Icons.local_pizza), ingridients: [Nutrition(kcal: 1000, protein: 20, fat: 20, carbs: 100)]),
+    Meal(name: "Pasta", description: "delish", icon: const Icon(Icons.fastfood), ingridients: [Nutrition(kcal: 800, protein: 10, fat: 20, carbs: 200)]),
+    Meal(name: "Burger", description: "delish", icon: const Icon(Icons.fastfood), ingridients: [Nutrition(kcal: 800, protein: 30, fat: 20, carbs: 10)]),
+    Meal(name: "Salad", description: "delish", icon: const Icon(Icons.fastfood), ingridients: [Nutrition(kcal: 400, protein: 5, fat: 20, carbs: 20)]),
+  ];
+
+  Nutrition getNutrition(DateTime date) => days.putIfAbsent(date, () => Day(date: date)).nutrients;
+
+  void addNutrients({required String kcal, required String protein, required String fat, required String carbs, required String grams, required DateTime date}) {
+    days.putIfAbsent(date, () => Day(date: date)).addFood(Meal(ingridients: [Nutrition.fromStrings(kcal: kcal, protein: protein, fat: fat, carbs: carbs, grams: grams)]));
   }
 
-  // ? should probably just use a dictionary for days
-  addFood({Meal? meal, double? kcal, double? protein, double? fat, double? carbs, required DateTime date}) {
-    days.firstWhere(
-      (element) => element.date == date,
-      orElse: () {
-        days.add(Day(date: date));
-        return days.last;
-      },
-    ).addFood(meal ?? Nutrition(kcal: kcal ?? 0, protein: protein ?? 0, fat: fat ?? 0, carbs: carbs ?? 0));
+  void addMeal(Meal meal, DateTime date) {
+    days.putIfAbsent(date, () => Day(date: date)).addFood(meal);
   }
 }
 

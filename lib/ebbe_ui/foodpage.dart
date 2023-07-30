@@ -1,8 +1,10 @@
 import 'package:app/controller.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+
+EbbesController controller = EbbesController();
+DateTime activeDate = controller.today;
 
 class FoodPage extends StatefulWidget {
   const FoodPage({Key? key}) : super(key: key);
@@ -11,14 +13,7 @@ class FoodPage extends StatefulWidget {
   State<FoodPage> createState() => _FoodPageState();
 }
 
-enum AddTypes { hundred, total, meal }
-
-EbbesController controller = EbbesController();
-DateTime activeDate = controller.today;
-
 class _FoodPageState extends State<FoodPage> {
-  int? touchedIndex;
-
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -41,30 +36,46 @@ class _FoodPageState extends State<FoodPage> {
               width: 200,
               child: PieChart(
                 PieChartData(
-                  pieTouchData: PieTouchData(
-                    enabled: true,
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) => setState(() => touchedIndex = pieTouchResponse?.touchedSection?.touchedSectionIndex),
-                  ),
                   centerSpaceRadius: double.infinity,
                   sections: [
-                    PieChartSectionData(color: CupertinoColors.systemRed, radius: touchedIndex == 0 ? 120 : 100, value: controller.getNutrition(activeDate).protein),
-                    PieChartSectionData(color: CupertinoColors.systemGreen, radius: touchedIndex == 1 ? 120 : 100, value: controller.getNutrition(activeDate).fat),
-                    PieChartSectionData(color: CupertinoColors.systemYellow, radius: touchedIndex == 2 ? 120 : 100, value: controller.getNutrition(activeDate).carbs),
+                    PieChartSectionData(
+                        color: CupertinoColors.systemYellow,
+                        radius: 100,
+                        value: controller.getNutrition(activeDate).carbs,
+                        title: '${controller.getNutrition(activeDate).carbs.round()} g',
+                        titleStyle: CupertinoTheme.of(context).textTheme.textStyle),
+                    PieChartSectionData(
+                        color: CupertinoColors.systemRed,
+                        radius: 100,
+                        value: controller.getNutrition(activeDate).protein,
+                        title: '${controller.getNutrition(activeDate).protein.round()} g',
+                        titleStyle: CupertinoTheme.of(context).textTheme.textStyle),
+                    PieChartSectionData(
+                        color: CupertinoColors.systemGreen,
+                        radius: 100,
+                        value: controller.getNutrition(activeDate).fat,
+                        title: '${controller.getNutrition(activeDate).fat.round()} g',
+                        titleStyle: CupertinoTheme.of(context).textTheme.textStyle),
                   ],
                 ),
                 swapAnimationDuration: const Duration(seconds: 1),
-                swapAnimationCurve: Curves.easeInCubic,
+                swapAnimationCurve: Curves.linear,
               ),
             ),
-            Text("You've eaten ${controller.getNutrition(activeDate).roundedKcal} kcals today"),
+            Text("You've eaten ${controller.getNutrition(activeDate).kcal} kcals today"),
             CupertinoButton.filled(
-              onPressed: () => Navigator.of(context).push(CupertinoPageRoute<void>(builder: (BuildContext context) => AddFoodPage())),
+              onPressed: () => _navigateAndDisplaySelection(context),
               child: const Text('Add Food'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _navigateAndDisplaySelection(BuildContext context) async {
+    final List<String> result = await Navigator.push(context, CupertinoPageRoute(builder: (context) => const AddFoodPage()));
+    setState(() => controller.addNutrients(kcal: result[0], protein: result[1], fat: result[2], carbs: result[3], grams: result.length == 5 ? result[4] : "100", date: activeDate));
   }
 
   void _showDatePicker(BuildContext context) {
@@ -81,7 +92,7 @@ class _FoodPageState extends State<FoodPage> {
             initialDateTime: activeDate,
             mode: CupertinoDatePickerMode.date,
             showDayOfWeek: true,
-            onDateTimeChanged: (DateTime newDate) => setState(() => activeDate = newDate),
+            onDateTimeChanged: (DateTime selected) => setState(() => activeDate = selected),
           ),
         ),
       ),
@@ -112,10 +123,6 @@ class _AddFoodPageState extends State<AddFoodPage> {
     );
   }
 
-  Widget _hundred() {
-    return const Center(child: Text('100'));
-  }
-
   Widget _meal(BuildContext context) {
     return ListView.builder(
       itemCount: controller.meals.length,
@@ -124,36 +131,89 @@ class _AddFoodPageState extends State<AddFoodPage> {
           title: Text(controller.meals[index].name),
           subtitle: Text(controller.meals[index].description),
           leading: controller.meals[index].icon,
-          trailing: Text('${controller.meals[index].roundedKcal} KCALs'),
+          trailing: Text('${controller.meals[index].kcal} KCALs'),
         ),
-        onPressed: () => setState(() => controller.addFood(meal: controller.meals[index], date: activeDate)),
+        onPressed: () => Navigator.pop(context, [
+          controller.meals[index].kcal.toString(),
+          controller.meals[index].protein.toString(),
+          controller.meals[index].fat.toString(),
+          controller.meals[index].carbs.toString(),
+        ]),
       ),
     );
   }
 
   Widget _total() {
-    List<TextEditingController> controllers = [TextEditingController(), TextEditingController(), TextEditingController(), TextEditingController()];
+    List<TextEditingController> controllers = [
+      TextEditingController(),
+      TextEditingController(),
+      TextEditingController(),
+      TextEditingController(),
+    ];
     return Container(
       margin: const EdgeInsets.all(40),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CupertinoTextField(controller: controllers[0], placeholder: 'Calories', keyboardType: TextInputType.number),
-          CupertinoTextField(controller: controllers[1], placeholder: 'Protein', keyboardType: TextInputType.number),
-          CupertinoTextField(controller: controllers[2], placeholder: 'Fat', keyboardType: TextInputType.number),
-          CupertinoTextField(controller: controllers[3], placeholder: 'Carbs', keyboardType: TextInputType.number),
+          input(controllers[0], "Calories"),
+          input(controllers[1], "Protein"),
+          input(controllers[2], "Fat"),
+          input(controllers[3], "Carbs"),
           CupertinoButton.filled(
-            onPressed: () => setState(() => controller.addFood(
-                kcal: double.parse(controllers[0].text != "" ? controllers[0].text : "0"),
-                protein: double.parse(controllers[1].text != "" ? controllers[1].text : "0"),
-                fat: double.parse(controllers[2].text != "" ? controllers[2].text : "0"),
-                carbs: double.parse(controllers[3].text != "" ? controllers[3].text : "0"),
-                date: activeDate)),
+            onPressed: () => Navigator.pop(
+              context,
+              [
+                controllers[0].text,
+                controllers[1].text,
+                controllers[2].text,
+                controllers[3].text,
+              ],
+            ),
             child: const Text("Add"),
           ),
         ],
       ),
     );
   }
+
+  Widget _hundred() {
+    List<TextEditingController> controllers = [
+      TextEditingController(),
+      TextEditingController(),
+      TextEditingController(),
+      TextEditingController(),
+      TextEditingController(),
+    ];
+    return Container(
+      margin: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          input(controllers[0], "Calories"),
+          input(controllers[1], "Protein"),
+          input(controllers[2], "Fat"),
+          input(controllers[3], "Carbs"),
+          input(controllers[4], "Grams"),
+          CupertinoButton.filled(
+            onPressed: () => Navigator.pop(
+              context,
+              [
+                controllers[0].text,
+                controllers[1].text,
+                controllers[2].text,
+                controllers[3].text,
+                controllers[4].text,
+              ],
+            ),
+            child: const Text("Add"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget input(TextEditingController controller, String placeholder) =>
+      Container(margin: const EdgeInsets.all(20), child: CupertinoTextField(controller: controller, placeholder: placeholder, keyboardType: TextInputType.number));
 }

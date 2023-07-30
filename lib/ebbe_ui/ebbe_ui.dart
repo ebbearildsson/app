@@ -7,6 +7,19 @@ class EbbeUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
+      theme: const CupertinoThemeData(
+        brightness: Brightness.light,
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(color: CupertinoColors.black, fontWeight: FontWeight.bold),
+          actionTextStyle: TextStyle(fontWeight: FontWeight.bold),
+          navLargeTitleTextStyle: TextStyle(color: CupertinoColors.black, fontWeight: FontWeight.bold),
+          navTitleTextStyle: TextStyle(color: CupertinoColors.black, fontWeight: FontWeight.bold),
+          navActionTextStyle: TextStyle(color: CupertinoColors.systemBlue, fontWeight: FontWeight.bold),
+          dateTimePickerTextStyle: TextStyle(color: CupertinoColors.black, fontWeight: FontWeight.bold),
+          pickerTextStyle: TextStyle(fontWeight: FontWeight.bold),
+          tabLabelTextStyle: TextStyle(color: CupertinoColors.black, fontWeight: FontWeight.bold),
+        ),
+      ),
       title: 'Ebbes',
       home: CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
